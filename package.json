@@ -1,0 +1,45 @@
+{
+  "name": "smartv4-victory",
+  "main": "index.js",
+  "version": "4.0.0",
+  "scripts": {
+    "postinstall": "patch-package",
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web"
+  },
+  "dependencies": {
+    "babel-preset-expo": "^54.0.9",
+    "expo": "^54.0.30",
+    "expo-av": "~13.4.1",
+    "expo-build-properties": "~0.8.3",
+    "expo-constants": "~14.4.2",
+    "expo-document-picker": "~11.5.4",
+    "expo-file-system": "15.4.5",
+    "expo-font": "~11.4.0",
+    "expo-image": "~1.3.5",
+    "expo-linking": "~5.0.2",
+    "expo-print": "~12.4.2",
+    "expo-router": "^6.0.21",
+    "expo-sharing": "~11.5.0",
+    "expo-splash-screen": "^31.0.13",
+    "expo-status-bar": "~1.6.0",
+    "expo-web-browser": "~12.3.2",
+    "patch-package": "^8.0.1",
+    "react": "18.2.0",
+    "react-native": "^0.72.10",
+    "react-native-gesture-handler": "~2.12.0",
+    "react-native-reanimated": "3.3.0",
+    "react-native-safe-area-context": "4.6.3",
+    "react-native-screens": "~3.22.0",
+    "react-native-webview": "^13.2.2",
+    "react-native-worklets": "0.7.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.20.0",
+    "@react-native/gradle-plugin": "^0.83.1",
+    "expo-modules-autolinking": "^3.0.23"
+  },
+  "private": true
+}
