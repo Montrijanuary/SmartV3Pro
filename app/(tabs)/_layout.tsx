@@ -1,35 +1,17 @@
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
+import { Tabs } from 'expo-router';
 
-// ให้ Splash Screen แสดงอยู่ตลอดจนกว่าทุกอย่างจะพร้อม
-SplashScreen.preventAutoHideAsync();
-
-export default function TabStackLayout() {
+export default function TabLayout() {
   return (
-    // Stack คือ Navigator หลักของเราสำหรับกลุ่มเส้นทาง (tab) นี้
-    <Stack>
-      {/* 1. index (Welcome Screen) เป็นหน้าแรก (เริ่มต้น) */}
-      <Stack.Screen 
-        name="index" 
-        options={{ 
-          headerShown: false, // ซ่อน Header Bar ที่หน้า Welcome
-          title: "Welcome Screen" 
-        }} 
-      />
-      
-      {/* 2. main (Main Menu) เป็นหน้าถัดไป */}
-      <Stack.Screen 
-        name="main" 
-        options={{ 
-          title: "SmartV3 Main Menu",
-          headerShown: true // แสดง Header Bar ที่หน้า Main Menu 
-        }} 
-      />
-      
-      {/* โค้ดที่เพิ่มเข้ามาใหม่ (ถ้ามีไฟล์อื่นในอนาคต): 
-      <Stack.Screen name="view" options={{ title: "View File" }} />
-      <Stack.Screen name="create" options={{ title: "Create New" }} />
-      */}
-    </Stack>
+    <Tabs
+      screenOptions={{
+        headerShown: false,   // ❌ ปิดหัวด้านบนทุกหน้า
+        tabBarShowLabel: false // (ถ้าไม่อยากให้มีชื่อใต้ไอคอนด้วย)
+      }}
+    >
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="main" />
+      <Tabs.Screen name="new_project" />
+      <Tabs.Screen name="view" />
+    </Tabs>
   );
 }

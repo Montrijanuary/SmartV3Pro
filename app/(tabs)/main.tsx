@@ -1,75 +1,78 @@
 import { StyleSheet, Text, View, Pressable, Image, Platform, BackHandler, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback, useRef } from 'react';
 import { Audio } from 'expo-av';
 
 export default function MainScreen() {
   const router = useRouter();
-  const [sound, setSound] = useState();
+  const soundRef = useRef<Audio.Sound | null>(null);
 
-  useEffect(() => {
-    const playSound = async () => {
-      console.log('Loading Sound');
-      const { sound } = await Audio.Sound.createAsync(
-        require('../../assets/audio/songa.mp3'),
-        { shouldPlay: true, isLooping: true }
-      );
-      setSound(sound);
-      console.log('Playing Sound');
-    };
+  // 🎵 เล่นเพลงทุกครั้งที่ "โฟกัส" หน้านี้
+  useFocusEffect(
+    useCallback(() => {
+      let isMounted = true;
 
-    playSound();
+      const playSound = async () => {
+        try {
+          const { sound } = await Audio.Sound.createAsync(
+            require('../../assets/audio/songa.mp3'),
+            { shouldPlay: true, isLooping: true }
+          );
+          if (isMounted) {
+            soundRef.current = sound;
+          }
+        } catch (e) {
+          console.log('Sound error:', e);
+        }
+      };
 
-    return () => {
-      console.log('Unloading Sound');
-      if (sound) {
-        sound.unloadAsync();
-      }
-    };
-  }, []);
+      playSound();
 
-  const stopSoundAndNavigate = async (path) => {
-    if (sound) {
-      await sound.unloadAsync();
+      return () => {
+        isMounted = false;
+        if (soundRef.current) {
+          soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
+      };
+    }, [])
+  );
+
+  const stopSound = async () => {
+    if (soundRef.current) {
+      await soundRef.current.unloadAsync();
+      soundRef.current = null;
     }
+  };
+
+  const stopSoundAndNavigate = async (path: string) => {
+    await stopSound();
     router.push(path);
   };
 
   const stopSoundAndExit = async () => {
-    if (sound) {
-      await sound.unloadAsync();
-    }
-    // ใช้ BackHandler.exitApp() ซึ่งเสถียรที่สุดในการปิดแอปฯ
+    await stopSound();
     if (Platform.OS === 'android' || Platform.OS === 'ios') {
-      BackHandler.exitApp(); 
+      BackHandler.exitApp();
     } else {
       Alert.alert('Exit', 'Exit function is not available on this platform.');
     }
   };
-  
-  const handleNewProjectPress = () => {
-    stopSoundAndNavigate('new_project');
-  };
 
-  const handleViewPress = () => {
-    stopSoundAndNavigate('view');
-  };
+  const handleNewProjectPress = () => stopSoundAndNavigate('new_project');
+  const handleViewPress = () => stopSoundAndNavigate('view');
 
   const handleMutePress = async () => {
-    if (sound) {
-      const status = await sound.getStatusAsync();
-      if (status.isMuted) {
-        await sound.setIsMutedAsync(false);
-      } else {
-        await sound.setIsMutedAsync(true);
+    if (soundRef.current) {
+      const status = await soundRef.current.getStatusAsync();
+      if ('isMuted' in status) {
+        await soundRef.current.setIsMutedAsync(!status.isMuted);
       }
     }
   };
 
-  const handleExitPress = () => {
-    stopSoundAndExit();
-  };
+  const handleExitPress = () => stopSoundAndExit();
 
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
@@ -154,16 +157,16 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   viewButton: {
-    backgroundColor: '#007bff', 
+    backgroundColor: '#007bff',
   },
   newProjectButton: {
-    backgroundColor: '#2E8B57', 
+    backgroundColor: '#2E8B57',
   },
   muteButton: {
-    backgroundColor: '#FF8A00', 
+    backgroundColor: '#FF8A00',
   },
   exitButton: {
-    backgroundColor: '#FF2D55', 
+    backgroundColor: '#FF2D55',
   },
   infoContainer: {
     alignItems: 'center',

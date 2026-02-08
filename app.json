@@ -3,51 +3,53 @@
     "name": "SmartV3",
     "slug": "smartv3-victory",
     "version": "4.0.0",
-    "sdkVersion": "49.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/smartv3.png",
     "userInterfaceStyle": "light",
+
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/icons/smartv3.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "assetBundlePatterns": [
       "**/*"
     ],
+
     "ios": {
       "supportsTablet": true
     },
+
     "android": {
-      "package": "com.smartv3.victory",
-      "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/icons/smartv3.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.montri24052542.smartv3victory"
     },
+
     "plugins": [
       "expo-router",
       [
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 33,
-            "targetSdkVersion": 33,
-            "buildToolsVersion": "33.0.0",
-            "kotlinVersion": "1.8.10"
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "kotlinVersion": "1.9.22"
           }
         }
       ]
     ],
+
     "extra": {
-      "router": {
-        "origin": false
-      },
       "eas": {
         "projectId": "367addf9-adbd-4e90-9262-dd24bd3fc5a0"
+      },
+      "router": {
+        "origin": false
       }
-    },
-    "owner": "montri24052542"
+    }
   }
 }
