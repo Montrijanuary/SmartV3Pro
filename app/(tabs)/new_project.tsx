@@ -11,6 +11,7 @@ import { StorageAccessFramework } from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Buffer } from "buffer";
 import { useNavigation } from "@react-navigation/native";
+import { Asset } from "expo-asset";
 
 export default function NewProject() {
   const navigation = useNavigation();
@@ -25,24 +26,17 @@ export default function NewProject() {
 
   const AMARIN_PERMISSION_KEY = "AMARIN_FOLDER_PERMISSION";
 
-  useEffect(() => {
-    resetForm();
-  }, []);
+  useEffect(() => { resetForm(); }, []);
 
   const resetForm = () => {
     const today = new Date();
     const thaiYear = today.getFullYear() + 543;
-    setTitle("");
-    setAuthor("");
-    setDetail("");
-    setImages([]);
-    setSelectedImage(null);
+    setTitle(""); setAuthor(""); setDetail(""); setImages([]); setSelectedImage(null);
     setDate(`${today.getDate()}-${today.getMonth() + 1}-${thaiYear}`);
   };
 
   const getAmarinPermission = async () => {
     let permission = await AsyncStorage.getItem(AMARIN_PERMISSION_KEY);
-
     if (!permission) {
       const result = await StorageAccessFramework.requestDirectoryPermissionsAsync();
       if (!result.granted) {
@@ -58,10 +52,7 @@ export default function NewProject() {
   const goToMain = () => navigation.navigate("main" as never);
 
   const makeBold = () => {
-    if (selection.start === selection.end) {
-      Alert.alert("แจ้งเตือน", "กรุณาไฮไลท์ข้อความก่อน");
-      return;
-    }
+    if (selection.start === selection.end) return Alert.alert("แจ้งเตือน", "กรุณาไฮไลท์ข้อความก่อน");
     const before = detail.substring(0, selection.start);
     const selected = detail.substring(selection.start, selection.end);
     const after = detail.substring(selection.end);
@@ -70,17 +61,9 @@ export default function NewProject() {
 
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("ต้องอนุญาตเข้าถึงรูปก่อน");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets.length > 0) {
-      setImages(prev => [...prev, result.assets[0].uri]);
-    }
+    if (!permission.granted) return Alert.alert("ต้องอนุญาตเข้าถึงรูปก่อน");
+    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.8 });
+    if (!result.canceled && result.assets.length > 0) setImages(prev => [...prev, result.assets[0].uri]);
   };
 
   const removeImage = () => {
@@ -90,10 +73,7 @@ export default function NewProject() {
   };
 
   const handleSave = async () => {
-    if (!title.trim()) {
-      Alert.alert("กรุณากรอกชื่อโครงการก่อน");
-      return;
-    }
+    if (!title.trim()) return Alert.alert("กรุณากรอกชื่อโครงการก่อน");
 
     try {
       const permissionUri = await getAmarinPermission();
@@ -101,23 +81,51 @@ export default function NewProject() {
 
       const safeName = `${title}_${date}`.replace(/[\/\\?%*:|"<>]/g, "-");
 
-      const imagePages = await Promise.all(
+      const headAsset = Asset.fromModule(require("../../assets/images/head.png"));
+      await headAsset.downloadAsync();
+      const headBase64 = await FileSystem.readAsStringAsync(headAsset.localUri!, { encoding: FileSystem.EncodingType.Base64 });
+
+      const imageBlocks = await Promise.all(
         images.map(async (uri) => {
-          const base64 = await FileSystem.readAsStringAsync(uri, {
-            encoding: FileSystem.EncodingType.Base64,
-          });
-          return `<div class="page imagePage"><img src="data:image/jpeg;base64,${base64}" /></div>`;
+          const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+          return `<img src="data:image/jpeg;base64,${base64}" style="width:100%; margin-top:10px;" />`;
         })
       );
 
+      const cleanDetail = detail.replace(/\n+/g, " "); // ✅ ไม่มีการเว้นบรรทัด
+
       const htmlContent = `
-      <html><body>
-      <h2>${title}</h2>
-      <p><b>วันที่:</b> ${date}</p>
-      <p><b>ผู้จัดทำ:</b> ${author}</p>
-      <p>${detail.replace(/\n/g, "<br>")}</p>
-      ${imagePages.join("")}
-      </body></html>`;
+      <html>
+      <head>
+        <style>
+          body { font-family: sans-serif; margin: 0; padding: 0; }
+          .page1 { min-height: 100vh; display: flex; flex-direction: column; }
+          .header { height: 30vh; text-align: center; }
+          .header img { max-height: 100%; max-width: 100%; object-fit: contain; }
+          .divider { border-bottom: 2px solid #000; margin: 5px 0; }
+          .content { flex: 1; padding: 10px; font-size: 14px; line-height: 1.4; }
+          h2, p { margin: 0; }
+        </style>
+      </head>
+      <body>
+
+        <div class="page1">
+          <div class="header">
+            <img src="data:image/png;base64,${headBase64}" />
+          </div>
+          <div class="divider"></div>
+          <div class="content">
+            <h2>${title}</h2>
+            <p><b>วันที่:</b> ${date}</p>
+            <p><b>ผู้จัดทำ:</b> ${author}</p>
+            <p>${cleanDetail}</p>
+          </div>
+        </div>
+
+        ${imageBlocks.join("")}
+
+      </body>
+      </html>`;
 
       const { uri: pdfTemp } = await Print.printToFileAsync({ html: htmlContent });
       const pdfBase64 = await FileSystem.readAsStringAsync(pdfTemp, { encoding: FileSystem.EncodingType.Base64 });
@@ -140,17 +148,11 @@ export default function NewProject() {
 
   const handleEdit = async () => {
     try {
-      resetForm(); // ✅ ล้างข้อมูลค้างก่อนทุกครั้ง
-
+      resetForm();
       const permissionUri = await getAmarinPermission();
       if (!permissionUri) return;
 
-      // เปิดหน้าเลือกไฟล์ในโฟลเดอร์ Amarin
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "application/json",
-        copyToCacheDirectory: true,
-      });
-
+      const result = await DocumentPicker.getDocumentAsync({ type: "application/json", copyToCacheDirectory: true });
       if (result.canceled) return;
 
       const uri = result.assets[0].uri;
