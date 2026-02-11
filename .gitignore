@@ -8,8 +8,9 @@ node_modules/
 dist/
 web-build/
 
-# Native
-android/
+# Native (keep android in repo for EAS Build)
+!android/**
+
 *.orig.*
 *.jks
 *.p8
