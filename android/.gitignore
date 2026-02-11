@@ -1,46 +1,16 @@
-# ================================
-# ANDROID NATIVE PROJECT - EAS SAFE
-# ================================
+# OSX
+#
+.DS_Store
 
-# ❌ Ignore build output only
-/build/
-/app/build/
-
-# ❌ Local machine config
+# Android/IntelliJ
+#
+build/
+.idea
+.gradle
 local.properties
-
-# ❌ Gradle cache (not needed in git)
-.gradle/
-
-# ❌ Temporary / logs
-*.log
-captures/
-.navigation/
-
-# ❌ IDE files
 *.iml
-.idea/
-
-# ❌ Keystore (security)
-*.jks
-*.keystore
-
-# ❌ Native build cache
+*.hprof
 .cxx/
 
-# ❌ Generated binaries
-*.apk
-*.aab
-*.dex
-*.class
-
-# ================================
-# ✅ DO NOT IGNORE THESE (REQUIRED FOR EAS)
-# ================================
-!gradlew
-!gradlew.bat
-!gradle/**
-!app/**
-!build.gradle
-!settings.gradle
-!gradle.properties
+# Bundle artifacts
+*.jsbundle
